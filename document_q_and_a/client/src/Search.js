@@ -1,5 +1,4 @@
 import { Grid, Paper, TextField } from "@mui/material";
-import { useState } from "react";
 import { Button, Alert, Box, CircularProgress } from "@mui/material";
 import { useUserQueryContext } from "./Contexts/UserQueryContext";
 import { SourceDocument } from "./SourceDocument";
