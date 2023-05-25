@@ -1,5 +1,18 @@
 version: '3'
 services:
+  postgres:
+    build:
+      context: document_q_and_a/postgres
+    ports:
+      - '5433:5432'
+    volumes:
+      - backend:/postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   api:
     build:
       context: document_q_and_a/api
@@ -7,6 +20,9 @@ services:
       - '8000:8000'
     env_file:
       - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   client:
     build:
@@ -16,7 +32,7 @@ services:
     depends_on:
       - api
     environment:
-      - REACT_APP_API_BASE_URL=http://localhost:8000
+      - REACT_APP_DOC_Q_AND_A_API_BASE_URL=http://localhost:8000
     volumes:
       - frontend:/app
 

@@ -6,7 +6,6 @@ import { Process } from "./Process";
 
 export const Main = () => {
   const [state, setState] = useState('upload');
-  const [file, setFile] = useState(undefined);
 
   return (
     <>
@@ -24,10 +23,10 @@ export const Main = () => {
       >
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           {state === 'upload' && (
-            <Upload file={file} setFile={setFile} setState={setState} />
+            <Upload setState={setState} />
           )}
           {state === 'process' && (
-            <Process />
+            <Process setState={setState} />
           )}
           {state === 'search' && (
             <Search />

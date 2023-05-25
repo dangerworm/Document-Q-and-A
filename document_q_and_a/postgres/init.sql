@@ -1,0 +1,7 @@
+CREATE TABLE public.chunks (
+    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    chunk TEXT NOT NULL,
+    source TEXT NOT NULL,
+    tags TEXT NOT NULL,
+    score INTEGER NOT NULL
+);

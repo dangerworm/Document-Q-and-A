@@ -1,9 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from langchain.embeddings import OpenAIEmbeddings
+from PyPDF2 import PdfFileReader
 
 from vector_store.vector_store import VectorStore
-from llm.caller import get_ai_response
+from llm.caller import get_chunking_algorithm, get_ai_response
 from loaders.custom_loader import HandbookLoader
 
 
@@ -18,20 +19,25 @@ app.add_middleware(
 vector_store = VectorStore("data/vector_db", OpenAIEmbeddings())
 
 
-@app.get("/")
-async def index():
-    return {"hello": "world"}
+@app.post("/get-algorithm", )
+async def get_algorithm(file: UploadFile) -> dict:
+    with open('temp.pdf', 'wb') as temp_file:
+        temp_file.write(await file.read())
 
+    with open('temp.pdf', 'rb') as pdf_file:
+        reader = PdfFileReader(pdf_file)
+        full_text = ''
+        for i in range(reader.numPages):
+            full_text += reader.pages[i].extractText()
 
-@app.post("/prompt")
-async def update_prompt():
-    return {"hello": "world"}
+        return get_chunking_algorithm(full_text)
 
 
 @app.get("/load")
 async def load_db():
     docs = HandbookLoader("data/docs").load()
     return vector_store.load(docs=docs)
+
 
 @app.get("/query")
 async def return_query_result(question: str) -> dict:

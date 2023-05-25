@@ -2,8 +2,15 @@ import { useState, useEffect } from "react";
 import { Grid, Paper } from "@mui/material";
 import { Button } from "@mui/material";
 import { Document, Page, pdfjs } from "react-pdf"
+import { useFileChunkingAlgorithmContext } from "./Contexts/FileChunkingAlgorithmContext";
 
-export const Upload = ({ file, setFile, setState }) => {
+export const Upload = ({ setState }) => {
+  const {
+    file,
+    setFile,
+    post
+  } = useFileChunkingAlgorithmContext();
+
   const [numPages, setNumPages] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
 
@@ -41,8 +48,6 @@ export const Upload = ({ file, setFile, setState }) => {
                 multiple
                 type="file"
                 onChange={(e) => {
-                  console.log(e.target.files[0]);
-
                   if (e.target.files.length > 0) {
                     setFile(e.target.files[0])
                   }
@@ -56,6 +61,7 @@ export const Upload = ({ file, setFile, setState }) => {
                 disabled={!file}
                 onClick={() => {
                   setState('process')
+                  post();
                 }}
                 style={{ marginTop: '1em' }}>
                 Continue

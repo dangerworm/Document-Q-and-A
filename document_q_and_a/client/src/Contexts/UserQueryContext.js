@@ -11,7 +11,7 @@ export const UserQueryContextProvider = ({ children }) => {
   const [sourceDocuments, setSourceDocuments] = useState([]);
   const [error, setError] = useState("");
 
-  const baseUrl = process.env.REACT_APP_API_BASE_URL
+  const baseUrl = process.env.REACT_APP_DOC_Q_AND_A_API_BASE_URL
 
   const sendQuery = useCallback(async () => {
     setLoading(true);
