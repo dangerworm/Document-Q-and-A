@@ -4,9 +4,9 @@ from json import dumps
 from openai import ChatCompletion
 from typing import Dict
 
-def get_chunking_algorithm(full_text: str, prompt: str = CREATE_CHUNKING_ALGORITHM_SYSTEM_PROMPT) -> Dict:
-    # Attempt to reduce full_text to 3,072 tokens
-    full_text = ' '.join(full_text.split(' ')[:1024])
+def get_chunking_algorithm(file_text: str, prompt: str = CREATE_CHUNKING_ALGORITHM_SYSTEM_PROMPT) -> Dict:
+    # Reduce number of tokens so there's room for the response
+    gpt_text = ' '.join(file_text.split(' ')[:2048])
 
     response = ChatCompletion.create(
         temperature=TEMPERATURE,
@@ -16,24 +16,17 @@ def get_chunking_algorithm(full_text: str, prompt: str = CREATE_CHUNKING_ALGORIT
             "content": prompt
         }, {
             "role": "user",
-            "content": full_text
+            "content": gpt_text
         }]
     )
 
     ai_output = response["choices"][0]["message"]["content"]
 
-    print(ai_output)
-    code = ai_output + '\nresult = chunking_algorithm(full_text)'
-    
-    variables = {'full_text': full_text}
-    exec(code, globals(), variables)
-    result = dumps(variables['result'])
-
     return {
-        'fileText': full_text,
+        'fileText': file_text,
         'fullResponse': response,
-        'code': ai_output,
-        'result': result}
+        'code': ai_output
+    }
 
 
 def get_ai_response(d: Dict, prompt: str = SUMMARISE_DOCS_SYSTEM_PROMPT) -> Dict:

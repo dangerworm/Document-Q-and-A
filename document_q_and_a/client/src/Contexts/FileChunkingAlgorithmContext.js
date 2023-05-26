@@ -5,51 +5,105 @@ export const FileChunkingAlgorithmContext = createContext();
 
 export const FileChunkingAlgorithmContextProvider = ({ children }) => {
   const [file, setFile] = useState();
-  const [loading, setLoading] = useState(false);
-  const [fullText, setFullText] = useState();
+  
+  const [codeLoading, setCodeLoading] = useState(false);
+  const [fileText, setFileText] = useState();
   const [fullResponse, setFullResponse] = useState();
-  const [code, setCode] = useState();
+  const [code, setCode] = useState('def chunking_algorithm(text):\n' +
+  '    import re\n' +
+  '    """\n' +
+  '    This function takes text from a document and returns an array of chunks.\n' +
+  '    """\n' +
+  '    \n' +
+  '    # Split the text into chunks\n' +
+  '    text = text.replace("\\n", " ")\n' +
+  '    chunks = re.split(r"\\d+\\s+", text)\n' +
+  '    \n' +
+  '    # Remove empty chunks\n' +
+  '    chunks = [chunk for chunk in chunks if chunk != ""]\n' +
+  '    \n' +
+  '    return chunks');
+
+  const [chunksLoading, setChunksLoading] = useState(false);
+  const [chunks, setChunks] = useState();
+  const [chunksError, setChunksError] = useState();
+
   const [result, setResult] = useState();
   const [error, setError] = useState();
 
   const baseUrl = 'http://localhost:8000';
 
-  const post = useCallback(async () => {
+  const getCode = useCallback(async () => {
     if (!file) {
       return;
     }
 
-    setLoading(true);
+    setCodeLoading(true);
 
     const formData = new FormData();
     formData.append("file", file);
 
     axios
-      .post(`${baseUrl}/get-algorithm`, formData)
+      .post(`${baseUrl}/get-code`, formData)
       .then(({ data }) => {
-        setFullText(data.fullText);
+        setFileText(data.fullText);
         setFullResponse(data.fullResponse);
         setCode(data.code);
-        setResult(JSON.parse(data.result));
       })
       .catch((error) => {
         setError(error.message);
       })
       .finally(() => {
-        setLoading(false);
+        setCodeLoading(false);
       });
   }, [baseUrl, file]);
+
+  const parseText = useCallback(async () => {
+    if (!file) {
+      return;
+    }
+
+    setChunksLoading(true);
+
+    const formData = new FormData();
+    formData.append("code", code);
+    formData.append("file", file);
+
+    axios
+      .post(`${baseUrl}/parse-text`, formData)
+      .then(({ data }) => {
+        if (data.error) {
+          setChunksError(data.error);
+          setChunks([])
+          return;
+        }
+
+        setChunksError(null);
+        setChunks(JSON.parse(data.chunks));
+      })
+      .catch((error) => {
+        setError(error.message);
+      })
+      .finally(() => {
+        setChunksLoading(false);
+      });
+  }, [baseUrl, code, file]);
 
   return (
     <FileChunkingAlgorithmContext.Provider
       value={{
         file,
         setFile,
-        post,
-        loading,
-        fullText,
+        getCode,
+        codeLoading,
+        fileText,
         fullResponse,
         code,
+        setCode,
+        parseText,
+        chunksLoading,
+        chunks,
+        chunksError,
         result,
         error,
         setError,

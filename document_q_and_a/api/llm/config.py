@@ -15,15 +15,15 @@ CREATE_CHUNKING_ALGORITHM_SYSTEM_PROMPT = '''You are a helpful assistant.
 
 You will be given a large amount of text and must produce an algorithm coded in Python that splits the text into sensible chunks.
 
-Consider the content of the document first and work out what it is about. It could be an instruction manual, a novel, a newspaper article, a CV, or something else.
-
-Use this context to inform your chunking algorithm.
+Consider the content of the document first and work out what it is about. It could be an instruction manual, a novel, a newspaper article, a CV, or something else. Use this context to inform your chunking algorithm.
 
 Try to remove titles, page numbers, and other unnecessary information.
 
 The chunks should be returned as an array of strings.
 
 You must not include anything other than the Python code in your answer; comments are acceptable and are encouraged.
+
+If your code uses functions, those functions must be defined in the code you provide.
 
 Carefully reflect on your answer before providing it.
 

@@ -8,7 +8,7 @@ export const Upload = ({ setState }) => {
   const {
     file,
     setFile,
-    post
+    getCode
   } = useFileChunkingAlgorithmContext();
 
   const [numPages, setNumPages] = useState(0);
@@ -60,8 +60,7 @@ export const Upload = ({ setState }) => {
                 component="span"
                 disabled={!file}
                 onClick={() => {
-                  setState('process')
-                  post();
+                  setState('get-code')
                 }}
                 style={{ marginTop: '1em' }}>
                 Continue
