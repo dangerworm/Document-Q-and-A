@@ -11,21 +11,14 @@ import MonacoEditor from "react-monaco-editor";
 
 export const Process = ({ setState }) => {
   const {
-    file,
-    setFile,
     getCode,
     codeLoading,
-    fileText,
-    fullResponse,
     code,
     setCode,
     parseText,
     chunksLoading,
     chunks,
     chunksError,
-    result,
-    error,
-    setError,
   } = useFileChunkingAlgorithmContext();
 
   const monacoOptions = {
@@ -74,7 +67,7 @@ export const Process = ({ setState }) => {
                 component="span"
                 disabled={!code || !chunks}
                 onClick={() => {
-                  setState("search");
+                  setState("save-to-database");
                 }}
                 style={{ marginTop: "1em" }}
               >
@@ -102,7 +95,7 @@ export const Process = ({ setState }) => {
                       <CircularProgress color="inherit" />
                     </Box>
                     <Box sx={{ m: 1, position: "relative" }}>
-                      Using OpenAI to find a chunking algorithm...
+                      Requesting a chunking algorithm from OpenAI...
                     </Box>
                   </Box>
                 )}

@@ -1,24 +1,40 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Grid, Paper } from "@mui/material";
 import { Button } from "@mui/material";
-import { Document, Page, pdfjs } from "react-pdf"
+import { Document, Page, pdfjs } from "react-pdf";
 import { useFileChunkingAlgorithmContext } from "./Contexts/FileChunkingAlgorithmContext";
 
 export const Upload = ({ setState }) => {
-  const {
-    file,
-    setFile,
-    getCode
-  } = useFileChunkingAlgorithmContext();
+  const { file, setFile } = useFileChunkingAlgorithmContext();
 
   const [numPages, setNumPages] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
 
-  useEffect(() => { pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`; });
+  useEffect(() => {
+    pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+  });
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
     setPageNumber(1);
+  };
+
+  const clearFile = () => {
+    setFile(null);
+
+    // Create a new file input element and replace the existing one
+    const newFileInput = document.createElement("input");
+    newFileInput.accept = "application/pdf";
+    newFileInput.style.display = "none";
+    newFileInput.id = "raised-button-file";
+    newFileInput.type = "file";
+    newFileInput.addEventListener("change", (e) => {
+      if (e.target.files.length > 0) {
+        setFile(e.target.files[0]);
+      }
+    });
+
+    document.getElementById("raised-button-file").replaceWith(newFileInput);
   };
 
   return (
@@ -33,23 +49,20 @@ export const Upload = ({ setState }) => {
           }}
         >
           <div style={{ textAlign: "center" }}>
-            <h1>Upload a document</h1>
-            <p>
-              Currently only PDFs are supported.
-            </p>
+            <h1>Content</h1>
+            <p>Currently only PDFs are supported.</p>
           </div>
           <Grid container spacing={3}>
             <Grid item xs={10}>
-              <h3>Choose a file</h3>
+              <h3>Upload a file or paste in some text</h3>
               <input
                 accept="application/pdf"
-                style={{ display: 'none' }}
+                style={{ display: "none" }}
                 id="raised-button-file"
-                multiple
                 type="file"
                 onChange={(e) => {
                   if (e.target.files.length > 0) {
-                    setFile(e.target.files[0])
+                    setFile(e.target.files[0]);
                   }
                 }}
               />
@@ -60,9 +73,10 @@ export const Upload = ({ setState }) => {
                 component="span"
                 disabled={!file}
                 onClick={() => {
-                  setState('get-code')
+                  setState("get-code");
                 }}
-                style={{ marginTop: '1em' }}>
+                style={{ marginTop: "1em" }}
+              >
                 Continue
               </Button>
             </Grid>
@@ -73,10 +87,22 @@ export const Upload = ({ setState }) => {
                 </Button>
               </label>
             </Grid>
-            <Grid item xs={10}>
-              <div style={{ marginTop: "0.35em" }}>
+            <Grid item xs={6}>
+              <div style={{ marginTop: "0.39em" }}>
                 <span>{file?.name}</span>
               </div>
+            </Grid>
+            <Grid item xs={2}>
+              <label htmlFor="raised-button-clear">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  disabled={!file}
+                  onClick={clearFile}
+                >
+                  Clear File
+                </Button>
+              </label>
             </Grid>
 
             {file && (
@@ -84,18 +110,14 @@ export const Upload = ({ setState }) => {
                 <p>
                   Page {pageNumber} of {numPages}
                 </p>
-                <Document
-                  file={file}
-                  onLoadSuccess={onDocumentLoadSuccess}>
-                  <Page
-                    renderAnnotationLayer={false}
-                    pageNumber={pageNumber} />
+                <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
+                  <Page renderAnnotationLayer={false} pageNumber={pageNumber} />
                 </Document>
               </Grid>
             )}
           </Grid>
         </Paper>
-      </Grid >
-    </Grid >
+      </Grid>
+    </Grid>
   );
 };
