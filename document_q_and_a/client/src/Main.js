@@ -3,7 +3,8 @@ import { Box, Container } from "@mui/material";
 import { Search } from "./Search";
 import { Upload } from "./Upload";
 import { Process } from "./Process";
-import { SaveToDatabase } from "./SaveToDatabase";
+import { AddMetadata } from "./AddMetadata";
+import { Embed } from "./Embed";
 
 export const Main = () => {
   const [state, setState] = useState('upload');
@@ -29,8 +30,11 @@ export const Main = () => {
           {(state === 'get-code' || state === 'parse-text')&& (
             <Process setState={setState} />
           )}
-          {state === 'save-to-database' && (
-            <SaveToDatabase state={state} setState={setState} />
+          {state === 'add-metadata' && (
+            <AddMetadata state={state} setState={setState} />
+          )}
+          {state === 'embed' && (
+            <Embed state={state} setState={setState} />
           )}
           {state === 'search' && (
             <Search />

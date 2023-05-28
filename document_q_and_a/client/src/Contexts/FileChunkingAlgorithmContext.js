@@ -28,6 +28,12 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
   const [chunks, setChunks] = useState();
   const [chunksError, setChunksError] = useState();
 
+  const [chunkScores, setChunkScores] = useState([]);
+
+  const [embeddingLoading, setEmbeddingLoading] = useState(false);
+  const [embeddingResult, setEmbeddingResult] = useState();
+  const [embeddingError, setEmbeddingError] = useState();
+
   const [result, setResult] = useState();
   const [error, setError] = useState();
 
@@ -66,8 +72,9 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
     setChunksLoading(true);
 
     const formData = new FormData();
-    formData.append("code", code);
+    formData.append("filename", file.name);
     formData.append("file", file);
+    formData.append("code", code);
 
     axios
       .post(`${baseUrl}/parse-text`, formData)
@@ -80,6 +87,7 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
 
         setChunksError(null);
         setChunks(JSON.parse(data.chunks));
+        setChunkScores(JSON.parse(data.chunks)?.map((_, index) => ({ chunkIndex: index, score: 100 })) ?? []);
       })
       .catch((error) => {
         setError(error.message);
@@ -88,6 +96,50 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
         setChunksLoading(false);
       });
   }, [baseUrl, code, file]);
+
+  const embed = useCallback(async () => {
+    if (!file) {
+      return;
+    }
+
+    if (!chunks) {
+      return;
+    }
+
+    if (!chunkScores || chunkScores.length === 0) {
+      return;
+    }
+
+    setEmbeddingLoading(true);
+
+    const chunkData = chunks.map((chunk, index) => ({
+      chunkIndex: index,
+      chunk,
+      score: chunkScores[index].score,
+    }));
+
+    const formData = new FormData();
+    formData.append("filename", file.name);
+    formData.append("chunkData", chunkData);
+    
+    axios
+      .post(`${baseUrl}/embed`, formData)
+      .then(({ data }) => {
+        if (data.error) {
+          setEmbeddingError(data.error);
+          return;
+        }
+
+        setEmbeddingLoading(null);
+        setEmbeddingResult(data);
+      })
+      .catch((error) => {
+        setEmbeddingError(error.message);
+      })
+      .finally(() => {
+        setEmbeddingLoading(false);
+      });
+  }, [baseUrl, chunks, chunkScores, file]);
 
   return (
     <FileChunkingAlgorithmContext.Provider
@@ -104,6 +156,12 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
         chunksLoading,
         chunks,
         chunksError,
+        chunkScores,
+        setChunkScores,
+        embed,
+        embeddingLoading,
+        embeddingResult,
+        embeddingError,
         result,
         error,
         setError,

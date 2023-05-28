@@ -3,9 +3,7 @@ from typing import Dict
 
 def parse_text(code: str, file_text: str) -> Dict:
     code += '\nchunks = chunking_algorithm(file_text)'
-
     variables = {'file_text': file_text}
-    print(file_text)
 
     try:
         exec(code, globals(), variables)

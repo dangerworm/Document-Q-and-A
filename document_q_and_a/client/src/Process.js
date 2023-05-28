@@ -67,7 +67,7 @@ export const Process = ({ setState }) => {
                 component="span"
                 disabled={!code || !chunks}
                 onClick={() => {
-                  setState("save-to-database");
+                  setState("add-metadata");
                 }}
                 style={{ marginTop: "1em" }}
               >
@@ -168,8 +168,9 @@ export const Process = ({ setState }) => {
               )}
               {!chunksLoading && chunks && (
                 <Grid item xs={12}>
-                  {chunks.map((chunk) => (
+                  {chunks.map((chunk, index) => (
                     <Paper
+                      key={index}
                       sx={{
                         mt: 1,
                         mb: 1,
