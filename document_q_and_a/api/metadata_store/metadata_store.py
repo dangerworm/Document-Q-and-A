@@ -13,15 +13,16 @@ class MetadataStore:
         self.conn.autocommit = True
         self.cursor = self.conn.cursor()
 
-    def write(self, fileHash: str, path: str, tags: list[str], data: dict):
+    def write(self, fileHash: str, path: str, tags: str, data: dict):
         insert_source = "INSERT INTO public.sources(sourceHash, sourcePath, tags) "
-        insert_source += f"VALUES ({fileHash}, {path}, {';'.join(tags)})"
-        sourceId = self.cursor.execute(f"{insert_source};")
+        insert_source += "VALUES (%s, %s, %s) RETURNING id;"
+        self.cursor.execute(insert_source, (fileHash, path, tags))
+        sourceId = self.cursor.fetchone()[0]
 
-        insert_chunk_prefix = f"INSERT INTO public.chunks(sourceId, chunk, score) "
-        for item in data.items():
-            self.cursor.execute(
-                f"{insert_chunk_prefix} VALUES ({sourceId}, {item['chunk']}, {item['score']});")
+        insert_chunk = "INSERT INTO public.chunks(sourceId, chunk, score) "
+        insert_chunk += "VALUES (%s, %s, %s);"
+        for item in data:
+            self.cursor.execute(insert_chunk, (sourceId, item['chunk'], item['score']))
 
         self.conn.commit()
 

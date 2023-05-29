@@ -6,6 +6,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useSourceContext } from "./Contexts/SourceContext";
 import { useFileChunkingAlgorithmContext } from "./Contexts/FileChunkingAlgorithmContext";
 
 const ContinueButton = ({ setState, localChunkScores, chunksLength, action }) => (
@@ -24,7 +25,8 @@ const ContinueButton = ({ setState, localChunkScores, chunksLength, action }) =>
 );
 
 export const AddMetadata = ({ setState }) => {
-  const { file, chunks, setChunkScores, embed } = useFileChunkingAlgorithmContext();
+  const { filename } = useSourceContext();
+  const { tags, setTags, chunks, setChunkScores, embed } = useFileChunkingAlgorithmContext();
 
   const [localChunkScores, setLocalChunkScores] = useState(chunks?.map((_, index) => ({ chunkIndex: index, score: 100 })) ?? []);
 
@@ -56,7 +58,7 @@ export const AddMetadata = ({ setState }) => {
               <h3>File Data</h3>
             </Grid>
             <Grid item xs={2} style={{ textAlign: "right" }}>
-              <ContinueButton setState={setState} localChunkScores={localChunkScores} chunksLength={chunks.length} action={embed} />
+              <ContinueButton setState={setState} localChunkScores={localChunkScores} chunksLength={chunks.length} action={() => embed(filename)} />
             </Grid>
           </Grid>
           <Grid container spacing={2}>
@@ -64,7 +66,7 @@ export const AddMetadata = ({ setState }) => {
               Filename:
             </Grid>
             <Grid item xs={12} md={10}>
-              <strong>{file.name}</strong>
+              <strong>{filename}</strong>
             </Grid>
             <Grid item xs={12} md={2} sx={{ mt: 2 }}>
               Tags:
@@ -75,7 +77,9 @@ export const AddMetadata = ({ setState }) => {
                 id="outlined-basic"
                 label="Words or phrases you associate with this document, separated by semicolons"
                 variant="outlined"
-                helperText="e.g. hr;policy;benefits;health;insurance" />
+                value={tags}
+                helperText="e.g. hr;policy;benefits;health;insurance"
+                onChange={(event) => setTags(event.target.value)} />
             </Grid>
           </Grid>
           <Grid container spacing={2}>
@@ -106,14 +110,14 @@ export const AddMetadata = ({ setState }) => {
                     defaultValue={100}
                     helperText="0-100%"
                     onChange={(event) => handleScoreChange(event, index)}
-                  ></TextField>
+                  />
                 </Grid>
               </Fragment>
             ))}
           </Grid>
           <Grid container spacing={2}>
             <Grid item xs={12} sx={{ textAlign: 'right' }}>
-              <ContinueButton setState={setState} localChunkScores={localChunkScores} chunksLength={chunks.length} action={embed} />
+              <ContinueButton setState={setState} localChunkScores={localChunkScores} chunksLength={chunks.length} action={() => embed(filename)} />
             </Grid>
           </Grid>
         </Paper>

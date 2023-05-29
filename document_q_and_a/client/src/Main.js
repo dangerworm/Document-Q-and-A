@@ -27,7 +27,7 @@ export const Main = () => {
           {state === 'upload' && (
             <Upload setState={setState} />
           )}
-          {(state === 'get-code' || state === 'parse-text')&& (
+          {(state === 'parse-text')&& (
             <Process setState={setState} />
           )}
           {state === 'add-metadata' && (

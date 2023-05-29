@@ -24,7 +24,6 @@ def get_chunking_algorithm(file_text: str, prompt: str = CREATE_CHUNKING_ALGORIT
 
     return {
         'fileText': file_text,
-        'fullResponse': response,
         'code': ai_output
     }
 

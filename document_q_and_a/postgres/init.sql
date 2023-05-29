@@ -1,3 +1,9 @@
+CREATE USER postgres;
+
+CREATE DATABASE postgres;
+
+GRANT ALL PRIVILEGES ON DATABASE postgres TO postgres;
+
 CREATE TABLE public.sources (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     sourceHash TEXT NOT NULL,
@@ -7,7 +13,7 @@ CREATE TABLE public.sources (
 
 CREATE TABLE public.chunks (
     id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    sourceId INT NOT NULL REFERENCES public.sources(id)
+    sourceId INT NOT NULL REFERENCES public.sources(id),
     chunk TEXT NOT NULL,
     score INTEGER NOT NULL DEFAULT(100)
 );

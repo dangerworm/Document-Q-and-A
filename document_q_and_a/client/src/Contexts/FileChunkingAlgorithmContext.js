@@ -4,11 +4,8 @@ import { useState, createContext, useCallback, useContext } from "react";
 export const FileChunkingAlgorithmContext = createContext();
 
 export const FileChunkingAlgorithmContextProvider = ({ children }) => {
-  const [file, setFile] = useState();
-  
   const [codeLoading, setCodeLoading] = useState(false);
   const [fileText, setFileText] = useState();
-  const [fullResponse, setFullResponse] = useState();
   const [code, setCode] = useState('def chunking_algorithm(text):\n' +
   '    import re\n' +
   '    """\n' +
@@ -28,6 +25,7 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
   const [chunks, setChunks] = useState();
   const [chunksError, setChunksError] = useState();
 
+  const [tags, setTags] = useState([]);
   const [chunkScores, setChunkScores] = useState([]);
 
   const [embeddingLoading, setEmbeddingLoading] = useState(false);
@@ -39,21 +37,16 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
 
   const baseUrl = 'http://localhost:8000';
 
-  const getCode = useCallback(async () => {
-    if (!file) {
-      return;
-    }
-
+  const getCode = useCallback(async (filename) => {
     setCodeLoading(true);
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("filename", filename);
 
     axios
       .post(`${baseUrl}/get-code`, formData)
       .then(({ data }) => {
         setFileText(data.fullText);
-        setFullResponse(data.fullResponse);
         setCode(data.code);
       })
       .catch((error) => {
@@ -62,18 +55,13 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
       .finally(() => {
         setCodeLoading(false);
       });
-  }, [baseUrl, file]);
+  }, [baseUrl]);
 
-  const parseText = useCallback(async () => {
-    if (!file) {
-      return;
-    }
-
+  const parseText = useCallback(async (filename) => {
     setChunksLoading(true);
 
     const formData = new FormData();
-    formData.append("filename", file.name);
-    formData.append("file", file);
+    formData.append("filename", filename);
     formData.append("code", code);
 
     axios
@@ -95,13 +83,9 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
       .finally(() => {
         setChunksLoading(false);
       });
-  }, [baseUrl, code, file]);
+  }, [baseUrl, code]);
 
-  const embed = useCallback(async () => {
-    if (!file) {
-      return;
-    }
-
+  const embed = useCallback(async (filename) => {
     if (!chunks) {
       return;
     }
@@ -119,8 +103,9 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
     }));
 
     const formData = new FormData();
-    formData.append("filename", file.name);
-    formData.append("chunkData", chunkData);
+    formData.append("filename", filename);
+    formData.append("tags", tags);
+    formData.append("chunkData", JSON.stringify(chunkData));
     
     axios
       .post(`${baseUrl}/embed`, formData)
@@ -139,23 +124,22 @@ export const FileChunkingAlgorithmContextProvider = ({ children }) => {
       .finally(() => {
         setEmbeddingLoading(false);
       });
-  }, [baseUrl, chunks, chunkScores, file]);
+  }, [baseUrl, tags, chunks, chunkScores]);
 
   return (
     <FileChunkingAlgorithmContext.Provider
       value={{
-        file,
-        setFile,
         getCode,
         codeLoading,
         fileText,
-        fullResponse,
         code,
         setCode,
         parseText,
         chunksLoading,
         chunks,
         chunksError,
+        tags,
+        setTags,
         chunkScores,
         setChunkScores,
         embed,

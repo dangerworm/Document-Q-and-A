@@ -8,8 +8,11 @@ import {
 } from "@mui/material";
 import { useFileChunkingAlgorithmContext } from "./Contexts/FileChunkingAlgorithmContext";
 import MonacoEditor from "react-monaco-editor";
+import { useSourceContext } from "./Contexts/SourceContext";
 
 export const Process = ({ setState }) => {
+  const { filename } = useSourceContext();
+
   const {
     getCode,
     codeLoading,
@@ -129,7 +132,7 @@ export const Process = ({ setState }) => {
                     variant="contained"
                     component="span"
                     onClick={() => {
-                      getCode();
+                      getCode(filename);
                     }}
                     style={{ marginTop: "1em" }}
                   >
@@ -141,7 +144,7 @@ export const Process = ({ setState }) => {
                     component="span"
                     disabled={!code}
                     onClick={() => {
-                      parseText();
+                      parseText(filename);
                     }}
                     style={{ marginTop: "1em", marginLeft: "1em" }}
                   >
